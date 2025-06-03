@@ -5,7 +5,7 @@ output "id" {
 
 output "record_key_to_id" {
   description = "Map of record keys (name-type-content) to record IDs."
-  value       = { for k, record in cloudflare_dns_record.default : k => record.id... if local.records_enabled }
+  value       = { for k, record in cloudflare_dns_record.default : k => record.id }
 }
 
 output "type" {
