@@ -3,9 +3,9 @@ output "id" {
   value       = try(local.zone_id, null)
 }
 
-output "record_hostnames_to_ids" {
-  description = "Map of DNS record hostnames to their corresponding record IDs."
-  value       = { for record in cloudflare_dns_record.default : record.hostname => record.id... if local.records_enabled }
+output "record_key_to_id" {
+  description = "Map of record keys (name-type-content) to record IDs."
+  value       = { for k, record in cloudflare_dns_record.default : k => record.id... if local.records_enabled }
 }
 
 output "type" {
