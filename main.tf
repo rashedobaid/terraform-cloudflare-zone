@@ -38,7 +38,7 @@ resource "cloudflare_dns_record" "default" {
   zone_id = local.zone_id
   name = (
     each.value.name == "@" || each.value.name == local.zone_name
-  ) ? local.zone_name : (
+    ) ? local.zone_name : (
     endswith(each.value.name, ".${local.zone_name}") ? each.value.name : "${each.value.name}.${local.zone_name}"
   )
   type     = each.value.type
