@@ -35,8 +35,12 @@ resource "cloudflare_zone" "default" {
 resource "cloudflare_dns_record" "default" {
   for_each = local.records
 
-  zone_id  = local.zone_id
-  name     = each.value.name == "@" ? local.zone_name : "${each.value.name}.${local.zone_name}"
+  zone_id = local.zone_id
+  name = (
+    each.value.name == "@" || each.value.name == local.zone_name
+    ) ? local.zone_name : (
+    endswith(each.value.name, ".${local.zone_name}") ? each.value.name : "${each.value.name}.${local.zone_name}"
+  )
   type     = each.value.type
   content  = each.value.content
   ttl      = lookup(each.value, "ttl", 1)
