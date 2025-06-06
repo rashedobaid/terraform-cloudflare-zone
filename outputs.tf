@@ -37,3 +37,8 @@ output "verification_key" {
   description = "TXT record value used to verify domain ownership. Applicable only for zones of type 'partial'."
   value       = join("", compact(cloudflare_zone.default[*].verification_key))
 }
+
+output "ruleset_ids" {
+  description = "Map of ruleset phases to their corresponding IDs."
+  value       = { for k, rs in cloudflare_ruleset.default : k => rs.id }
+}
