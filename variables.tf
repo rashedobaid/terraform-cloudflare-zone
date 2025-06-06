@@ -43,3 +43,9 @@ variable "argo_smart_routing_enabled" {
   type        = bool
   default     = true
 }
+
+variable "rulesets" {
+  description = "List of Rulesets to be created within the zone."
+  type        = list(any)
+  default     = []
+}
