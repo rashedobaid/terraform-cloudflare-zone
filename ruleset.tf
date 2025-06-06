@@ -8,6 +8,6 @@ resource "cloudflare_ruleset" "default" {
   zone_id = local.zone_id
   kind    = "zone"
   name    = "default"
-  phase   = each.value.phase
+  phase   = each.key
   rules   = lookup(each.value, "rules", [])
 }
