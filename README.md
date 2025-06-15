@@ -15,8 +15,6 @@ This module supports:
 
 ## Example
 
-### Create new zone
-
 ```hcl
 module "zone" {
   source  = "rashedobaid/zone/cloudflare"
