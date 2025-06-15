@@ -1,29 +1,41 @@
 # Terraform Cloudflare Zone
 
-Terraform module that manages Cloudflare zones, DNS records, and optional [Argo Smart Routing](https://developers.cloudflare.com/argo-smart-routing/) and [Tiered Caching](https://developers.cloudflare.com/cache/about/tiered-cache/).
+Terraform module that manages Cloudflare zones, DNS records, optional [Argo Smart Routing](https://developers.cloudflare.com/argo-smart-routing/), [Tiered Caching](https://developers.cloudflare.com/cache/about/tiered-cache/), and [Rulesets](https://developers.cloudflare.com/ruleset-engine/about/rulesets/).
 
 This module supports:
 
 - Creating or using an existing Cloudflare zone.
-- Managing multiple DNS records.
-- Enabling and configuring Cloudflare Argo features.
+- Managing multiple DNS records, including:
+  - Full control over TTL, proxying, priority, and comments.
+  - Ability to ignore content changes for external systems like DDNS.
+- Enabling and configuring Cloudflare Argo features:
+  - Smart Routing
+  - Tiered Caching
+- Defining custom Cloudflare Rulesets (e.g., redirect logic, access policies).
 
-## Examples
+## Example
 
 ### Create new zone
 
 ```hcl
 module "zone" {
-  source      = "github.com/rashedobaid/terraform-cloudflare-zone"
+  source  = "rashedobaid/zone/cloudflare"
 
-  account_id  = "your-cloudflare-account-id"
-  zone        = "example.com"
+  # Required Cloudflare account ID
+  account_id = "your-cloudflare-account-id"
 
-  # Optional: Enable Argo features
+  # Domain name to create/manage in Cloudflare
+  zone = "example.com"
+
+  # Whether to create a new zone or use an existing one
+  zone_enabled = true
+
+  # Enable Argo features
   argo_enabled                 = true
   argo_smart_routing_enabled   = true
   argo_tiered_caching_enabled  = true
 
+  # DNS records to manage
   records = [
     {
       name    = "www"
@@ -31,6 +43,7 @@ module "zone" {
       content = "192.0.2.1"
       ttl     = 300
       proxied = true
+      comment = "Main website"
     },
     {
       name     = "@"
@@ -38,51 +51,26 @@ module "zone" {
       content  = "mail.example.com"
       ttl      = 3600
       priority = 10
-    }
-  ]
-}
-```
-
-### Use existing zone
-
-```hcl
-module "zone" {
-  source      = "github.com/rashedobaid/terraform-cloudflare-zone"
-  
-  account_id  = "your-cloudflare-account-id"
-  zone        = "example.com"
-
-  # Use existing zone (do not create)
-  zone_enabled = false 
-
-  records = [
+      comment  = "Mail server"
+    },
     {
-      name    = "app"
-      type    = "CNAME"
-      content = "app.example.net"
-      ttl     = 300
-      proxied = false
+      name    = "vpn"
+      type    = "A"
+      content = "dynamic.example.com"
+      ttl     = 120
+      managed = false            # This record is managed externally (e.g., DDNS)
+      comment = "Dynamic IP from DDNS"
     }
   ]
-}
-```
 
-### Create rulesets
-
-```hcl
-module "zone" {
-  source      = "github.com/rashedobaid/terraform-cloudflare-zone"
-  
-  account_id  = "your-cloudflare-account-id"
-  zone        = "example.com"
-  
+  # Optional rulesets to apply
   rulesets = [
     {
       phase = "http_request_dynamic_redirect"
       rules = [
         {
-          description = "Redirect to example.net"
-          expression  = "http.host eq \"example.net\""
+          description = "Redirect example.com to example.net"
+          expression  = "http.host eq \"example.com\""
           action      = "redirect"
           action_parameters = {
             from_value = {
@@ -124,6 +112,7 @@ No modules.
 | [cloudflare_argo_smart_routing.default](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/argo_smart_routing) | resource |
 | [cloudflare_argo_tiered_caching.default](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/argo_tiered_caching) | resource |
 | [cloudflare_dns_record.default](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/dns_record) | resource |
+| [cloudflare_dns_record.unmanaged](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/dns_record) | resource |
 | [cloudflare_ruleset.default](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/ruleset) | resource |
 | [cloudflare_zone.default](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone) | resource |
 | [cloudflare_zones.default](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/data-sources/zones) | data source |
