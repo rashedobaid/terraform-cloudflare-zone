@@ -46,6 +46,8 @@ resource "cloudflare_dns_record" "default" {
   ttl      = lookup(each.value, "ttl", 1)
   priority = lookup(each.value, "priority", null)
   proxied  = lookup(each.value, "proxied", false)
+  data     = lookup(each.value, "data", null)
+  settings = lookup(each.value, "settings", null)
   comment  = lookup(each.value, "comment", null)
 }
 
