@@ -6,7 +6,7 @@ locals {
   records_enabled = length(var.records) > 0
   records = local.records_enabled ? {
     for index, record in var.records :
-    try(record.key, format("%s-%s-%s", record.name, record.type, record.content)) => record
+    try(record.key, format("%s-%s-%s", record.name, record.type, coalesce(try(record.content), index))) => record
   } : {}
   argo_enabled   = var.argo_enabled
   tiered_caching = local.argo_enabled && var.argo_tiered_caching_enabled ? "on" : "off"
@@ -43,10 +43,12 @@ resource "cloudflare_dns_record" "default" {
   )
   type     = each.value.type
   content  = each.value.content
-  ttl      = lookup(each.value, "ttl", 1)
-  priority = lookup(each.value, "priority", null)
-  proxied  = lookup(each.value, "proxied", false)
-  comment  = lookup(each.value, "comment", null)
+  data     = each.value.data
+  ttl      = each.value.ttl
+  priority = each.value.priority
+  proxied  = each.value.proxied
+  comment  = each.value.comment
+  settings = each.value.settings
 }
 
 resource "cloudflare_argo_smart_routing" "default" {

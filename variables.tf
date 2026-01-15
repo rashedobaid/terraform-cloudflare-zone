@@ -22,8 +22,18 @@ variable "type" {
 
 variable "records" {
   description = "List of DNS records to be created within the zone."
-  type        = list(any)
-  default     = []
+  type = list(object({
+    name     = string
+    type     = string
+    ttl      = optional(number, 1)
+    content  = optional(string)
+    data     = optional(map(any))
+    priority = optional(number)
+    proxied  = optional(bool)
+    comment  = optional(string)
+    settings = optional(map(any))
+  }))
+  default = []
 }
 
 variable "argo_enabled" {
