@@ -38,6 +38,11 @@ output "verification_key" {
   value       = join("", compact(cloudflare_zone.default[*].verification_key))
 }
 
+output "zone_setting_values" {
+  description = "Map of managed zone setting IDs to their applied values."
+  value       = { for k, setting in cloudflare_zone_setting.default : k => setting.value }
+}
+
 output "ruleset_ids" {
   description = "Map of ruleset phases to their corresponding IDs."
   value       = { for k, rs in cloudflare_ruleset.default : k => rs.id }
